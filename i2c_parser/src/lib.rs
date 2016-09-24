@@ -143,6 +143,7 @@ impl I2cEngine {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::{I2cEngine, DecodeState, I2cMessage};
 
