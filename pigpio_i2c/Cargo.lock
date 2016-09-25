@@ -1,0 +1,14 @@
+[root]
+name = "pigpio_i2c"
+version = "0.1.0"
+dependencies = [
+ "i2c_parser 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "i2c_parser"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[metadata]
+"checksum i2c_parser 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8870b1c73c269f8602fb74046e52b60c661cd38b8c67e19678fb63ef00b71491"
