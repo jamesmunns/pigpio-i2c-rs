@@ -189,10 +189,10 @@ mod test {
     #[test]
     fn test_bytes() {
         let tests = vec!(
-            // vec!(),
-            // vec!(0x00u8),
-            // vec!(0x00u8, 0x00u8),
-            // vec!(0xF0u8),
+            vec!(),
+            vec!(0x00u8),
+            vec!(0x00u8, 0x00u8),
+            vec!(0xF0u8),
             vec!(0x01u8, 0x02u8, 0x03u8, 0xA0u8, 0xB0u8, 0xC0u8),
         );
 
