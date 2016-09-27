@@ -48,15 +48,15 @@ impl I2cMessage {
 impl fmt::Display for I2cMessage {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut out = String::new();
-        out += &("[");
+        out.push_str(&("["));
         for byte in &self.message {
-            out += &(format!("{:02X}", byte.data));
-            out += &(format!("{}", match byte.status {
+            out.push_str(&(format!("{:02X}", byte.data)));
+            out.push_str(&(format!("{}", match byte.status {
                 I2cStatus::Ack => "+",
                 I2cStatus::Nak => "-",
-            }));
+            })));
         }
-        out += &(format!("]"));
+        out.push_str(&(format!("]")));
         write!(f, "{}", out)
     }
 }
