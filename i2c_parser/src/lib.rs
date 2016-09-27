@@ -17,8 +17,8 @@ pub struct I2cMessage {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct I2cByte {
-    data: u8,
-    status: I2cStatus,
+    pub data: u8,
+    pub status: I2cStatus,
 }
 
 #[derive(Debug)]
