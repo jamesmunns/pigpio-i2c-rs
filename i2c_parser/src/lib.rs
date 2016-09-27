@@ -12,7 +12,7 @@ pub struct I2cEngine {
 
 #[derive(Debug, PartialEq)]
 pub struct I2cMessage {
-    message: Vec<I2cByte>,
+    pub message: Vec<I2cByte>,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
