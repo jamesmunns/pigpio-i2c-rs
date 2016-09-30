@@ -73,9 +73,10 @@ impl fmt::Display for I2cMessage {
 }
 
 /// Representation of the current engine state
-///   * Idle: A message has not yet been started
-///   * Pending: An I2C START condition has been received, waiting for a STOP
-///   * Complete: A STOP condition has just occurred, and contains all bytes received between START and STOP
+///
+/// * Idle: A message has not yet been started
+/// * Pending: An I2C START condition has been received, waiting for a STOP
+/// * Complete: A STOP condition has just occurred, and contains all bytes received between START and STOP
 #[derive(Debug, PartialEq)]
 pub enum DecodeState {
     Idle,
