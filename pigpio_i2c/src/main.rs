@@ -2,7 +2,7 @@ extern crate i2c_parser;
 extern crate tokio_core;
 extern crate futures;
 
-use i2c_parser::{I2cEngine, DecodeState};
+use i2c_parser::{I2cEngine, DecodeState, I2cMessage};
 use std::{mem, io, env};
 use std::io::Read;
 
@@ -32,7 +32,7 @@ use futures::Future;
 
 
 struct GpioReportStream<R: Read> {
-    input: R
+    input: R,
 }
 
 impl<R: Read> Stream for GpioReportStream<R> {
@@ -70,40 +70,27 @@ fn main() {
 
     println!("0x{:08X} 0x{:08X}", scl_mask, sda_mask);
 
-    let mut a1 = GpioReportStream {
+    let mut raw_msg_stream = GpioReportStream {
         input: stdin,
-    };
+    }.map(|msg_raw| {
+        let scl = scl_mask == (msg_raw.level & scl_mask);
+        let sda = sda_mask == (msg_raw.level & sda_mask);
 
-    // let mut a2 = a1.for_each(|x| {
-    //     println!("{:?}", x);
-    //     Ok(())
-    // });
+        if let DecodeState::Complete(msg) = parse.update_i2c(scl, sda) {
+            // TODO(AJM):
+            // What I really want is to "yield" a format!("{}", msg), then
+            // use this stream like an iterator, breaking when some kind of
+            // error propigates through. Right now, I am just using some kind
+            // of side effect magic to get the result that I want, but if I needed
+            // to pass on as a stream, I don't know wtf to do.
+            println!("{}", msg);
+        }
+    });
 
     loop {
-        match a1.poll() {
+        match raw_msg_stream.poll() {
+            Ok(_) => {},
             Err(_) => {break;}
-            Ok(x) => {
-                println!("{:?}", x);
-            }
         }
     }
-
 }
-
-
-    // loop {
-    //     match stdin.read_exact(&mut buf) {
-    //         Ok(_) => {
-    //             let msg_raw = GpioReportRaw::from_buffer(buf);
-    //             let scl = scl_mask == (msg_raw.level & scl_mask);
-    //             let sda = sda_mask == (msg_raw.level & sda_mask);
-    //             match parse.update_i2c(scl, sda) {
-    //                 DecodeState::Complete(msg) => {
-    //                     println!("{}", msg);
-    //                 }
-    //                 _ => {}
-    //             }
-    //         },
-    //         _ => panic!(),
-    //     }
-    // }
