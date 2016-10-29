@@ -7,4 +7,5 @@ license = "MIT"
 repository = "https://github.com/jamesmunns/pigpio-i2c-rs"
 
 [dependencies]
-
+tokio-core = "0.1"
+futures = "0.1"

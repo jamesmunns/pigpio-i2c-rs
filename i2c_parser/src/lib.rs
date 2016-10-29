@@ -3,6 +3,7 @@
 //! Rust implementation of [pigpio's I2C Sniffer](https://github.com/joan2937/pigpio/tree/master/EXAMPLES/C/I2C_SNIFFER).
 
 use std::fmt;
+extern crate tokio_core;
 
 /// Structure for parsing I2C Messages from raw SDA and SCL inputs
 #[derive(Debug)]

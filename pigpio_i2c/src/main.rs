@@ -1,4 +1,7 @@
 extern crate i2c_parser;
+extern crate tokio_core;
+extern crate futures;
+
 use i2c_parser::{I2cEngine, DecodeState};
 use std::{mem, io, env};
 use std::io::Read;
@@ -20,6 +23,24 @@ impl GpioReportRaw {
     }
 }
 
+struct GpioReportStream<R: Read> {
+    input: R
+}
+
+impl<R: Read> Stream for GpioReportStream<R> {
+    type Item = GpioReportRaw;
+    type Error = io::Error;
+
+    fn poll(&mut self) -> Poll<Option<Self::Item>, io::Error> {
+        let mut buf: GpioBuffer = [0u8; 12];
+        self.input.read_exact(&mut buf).unwrap();
+        Ok(GpioReportRaw::from_buffer(buf))
+    }
+}
+
+use futures::stream::*;
+use futures::Poll;
+
 fn main() {
 
     let mut parse = I2cEngine::new();
@@ -34,20 +55,26 @@ fn main() {
 
     println!("0x{:08X} 0x{:08X}", scl_mask, sda_mask);
 
-    loop {
-        match stdin.read_exact(&mut buf) {
-            Ok(_) => {
-                let msg_raw = GpioReportRaw::from_buffer(buf);
-                let scl = scl_mask == (msg_raw.level & scl_mask);
-                let sda = sda_mask == (msg_raw.level & sda_mask);
-                match parse.update_i2c(scl, sda) {
-                    DecodeState::Complete(msg) => {
-                        println!("{}", msg);
-                    }
-                    _ => {}
-                }
-            },
-            _ => panic!(),
-        }
-    }
+    let _ = GpioReportStream {
+        input: stdin,
+    };
+
 }
+
+
+    // loop {
+    //     match stdin.read_exact(&mut buf) {
+    //         Ok(_) => {
+    //             let msg_raw = GpioReportRaw::from_buffer(buf);
+    //             let scl = scl_mask == (msg_raw.level & scl_mask);
+    //             let sda = sda_mask == (msg_raw.level & sda_mask);
+    //             match parse.update_i2c(scl, sda) {
+    //                 DecodeState::Complete(msg) => {
+    //                     println!("{}", msg);
+    //                 }
+    //                 _ => {}
+    //             }
+    //         },
+    //         _ => panic!(),
+    //     }
+    // }
