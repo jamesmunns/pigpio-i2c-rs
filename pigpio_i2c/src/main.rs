@@ -23,6 +23,14 @@ impl GpioReportRaw {
     }
 }
 
+// -----------------------------------------------------------------------------
+
+use futures::stream::*;
+use futures::Poll;
+use futures::Async;
+use futures::Future;
+
+
 struct GpioReportStream<R: Read> {
     input: R
 }
@@ -33,13 +41,20 @@ impl<R: Read> Stream for GpioReportStream<R> {
 
     fn poll(&mut self) -> Poll<Option<Self::Item>, io::Error> {
         let mut buf: GpioBuffer = [0u8; 12];
-        self.input.read_exact(&mut buf).unwrap();
-        Ok(GpioReportRaw::from_buffer(buf))
+
+        // TODO - Make this non-blocking, etc
+        try!(self.input.read_exact(&mut buf));
+
+        // Okay... what the fuck is this noise?
+        // Result(Async(Option(Item))) - Seriously?
+        //
+        // Poll   -> Async || Error    => Result type
+        // Async  -> Ready || NotReady => ::Ready
+        // Option -> Some  || None     => Complete, message decoded?
+        // Item   -> Buffer!
+        Ok(Async::Ready(Some(GpioReportRaw::from_buffer(buf))))
     }
 }
-
-use futures::stream::*;
-use futures::Poll;
 
 fn main() {
 
@@ -55,9 +70,23 @@ fn main() {
 
     println!("0x{:08X} 0x{:08X}", scl_mask, sda_mask);
 
-    let _ = GpioReportStream {
+    let mut a1 = GpioReportStream {
         input: stdin,
     };
+
+    // let mut a2 = a1.for_each(|x| {
+    //     println!("{:?}", x);
+    //     Ok(())
+    // });
+
+    loop {
+        match a1.poll() {
+            Err(_) => {break;}
+            Ok(x) => {
+                println!("{:?}", x);
+            }
+        }
+    }
 
 }
 
