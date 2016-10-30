@@ -76,14 +76,9 @@ fn main() {
         let scl = scl_mask == (msg_raw.level & scl_mask);
         let sda = sda_mask == (msg_raw.level & sda_mask);
 
-        if let DecodeState::Complete(msg) = parse.update_i2c(scl, sda) {
-            // TODO(AJM):
-            // What I really want is to "yield" a format!("{}", msg), then
-            // use this stream like an iterator, breaking when some kind of
-            // error propigates through. Right now, I am just using some kind
-            // of side effect magic to get the result that I want, but if I needed
-            // to pass on as a stream, I don't know wtf to do.
-            println!("{}", msg);
+        match parse.update_i2c(scl, sda) {
+            DecodeState::Complete(msg) => Ok(format!("{}", msg)),
+            _ => Err("shit"),
         }
     });
 
